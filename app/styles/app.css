@@ -1,26 +1,51 @@
 html, body {
   margin: 20px;
-  font-family: 'Avenir', sans-serif;
+  font-family: 'Avenir', 'Calibri', 'Helvetica', sans-serif;
+}
+
+h1, h5 {
+  font-weight: 600;
+}
+
+h1 {
+  margin-bottom: 0;
+}
+
+h5 {
+  margin-top: 0;
 }
 
 strong {
   font-weight: 600;
 }
 
+hr {
+  border: 1px solid #c0c0c0;
+}
+
 .master {
+  margin-top: 10px;
   float: left;
   width: 30%;
-
   font-size: 20pt;
 }
 
 .master a {
   display: block;
+  text-decoration: none;
+}
+
+.master a:hover {
+  text-decoration: underline;
+}
+
+.master a.active::before {
+  content: " » ";
 }
 
 .detail {
+  margin-top: 10px;
   float: left;
   width: 70%;
-
   font-size: 14pt;
 }

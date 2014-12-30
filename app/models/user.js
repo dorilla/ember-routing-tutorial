@@ -4,6 +4,7 @@ import DS from "ember-data";
 var User = DS.Model.extend({
   firstName:  DS.attr('string'),
   lastName:   DS.attr('string'),
+  bio:        DS.attr('string')
 });
 
 // creates User fixtures

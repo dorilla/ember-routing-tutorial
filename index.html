@@ -1,0 +1,385 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Ember-routing-tutorial by dorilla</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Ember-routing-tutorial</h1>
+        <p>Tutorial for Ember.js Nested Routing</p>
+
+        <p class="view"><a href="https://github.com/dorilla/ember-routing-tutorial">View the Project on GitHub <small>dorilla/ember-routing-tutorial</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/dorilla/ember-routing-tutorial/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/dorilla/ember-routing-tutorial/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/dorilla/ember-routing-tutorial">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="emberjs-nested-routing-with-multiple-outlets" class="anchor" href="#emberjs-nested-routing-with-multiple-outlets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ember.js Nested Routing with Multiple Outlets</h1>
+
+<h3>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
+
+<p>Starting out with Ember.js is a lot like starting out with Rails -- there is a plethora of ways to achieve one thing. This is a good thing and a bad thing. It's good that the framework is flexible enough to support multiple and solid ways of implementing a feature, however, with a large team, a convention needs to be established for maintanability and overall sane-ness. So why not stick with the framework's conventions? </p>
+
+<p>With Ember.js (and more specifically, Ember CLI), we are given a solid, well thought-out set of conventions. In this article I'll walk through Ember.js routing -- specifically nested routing with multiple outlets on the same page.</p>
+
+<p>A quick demo before we start: <a href="http://">Demo</a></p>
+
+<h6>
+<a id="technologies-used" class="anchor" href="#technologies-used" aria-hidden="true"><span class="octicon octicon-link"></span></a>Technologies Used</h6>
+
+<ul>
+<li>Ember.js -- v. 1.10.0-beta.2 (HTMLbars!!!)</li>
+<li>Ember Data -- v. 1.0.0-beta.14</li>
+<li>Ember CLI -- v. 0.1.5</li>
+</ul>
+
+<h3>
+<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h3>
+
+<p>To get our environment setup, we should initially have Node.js installed to install our various dependencies.</p>
+
+<p>On a Mac with Homebrew installed, it's as simple as</p>
+
+<p><code>brew install node</code></p>
+
+<p>Now install Ember-CLI</p>
+
+<p><code>npm install -g ember-cli</code></p>
+
+<p>Next, we'll install Bower -- Ember-CLI uses it as its package manager</p>
+
+<p><code>npm install -g bower</code></p>
+
+<h3>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h3>
+
+<p>Now that we have our environment set up, change your current directory to where you'll be storing your files. I like to keep a folder called <code>Dev</code> in my home directory</p>
+
+<p><code>cd ~/Dev</code></p>
+
+<p>Now intialize a new Ember CLI app</p>
+
+<p><code>ember new your-app-name</code></p>
+
+<p><code>cd your-app-name</code></p>
+
+<p>At this point you can now simply run</p>
+
+<p><code>ember server</code></p>
+
+<p>to start a new server located at <a href="http://localhost:4200">http://localhost:4200/</a></p>
+
+<p><code>Insert screenshot 1</code></p>
+
+<p>Source up to this point: <a href="https://github.com/dorilla/ember-routing-tutorial/releases/tag/start-here">https://github.com/dorilla/ember-routing-tutorial/releases/tag/start-here</a></p>
+
+<h5>
+<a id="some-more-setup" class="anchor" href="#some-more-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Some More Setup</h5>
+
+<p>Now we have to setup our app to receive data from some external API source. We are going to use Fixtures as a way to fake data coming from an API. You can read more about Fixtures <a href="http://emberjs.com/guides/models/the-fixture-adapter/">here</a>.</p>
+
+<p>Create a folder named <code>adapters</code> in the <code>/app</code> directory. Then create a file named <code>application.js</code> with the following contents</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">import</span> DS from <span class="pl-s1"><span class="pl-pds">'</span>ember-data<span class="pl-pds">'</span></span>;
+
+<span class="pl-s">export</span> <span class="pl-k">default</span> DS.FixtureAdapter.extend({
+  <span class="pl-c">// Adds a fake latency timer to see realistic transitions between routes (time between AJAX requests)</span>
+  latency<span class="pl-k">:</span> <span class="pl-c1">500</span>
+});</pre></div>
+
+<p>This file tells Ember Data to use the FixtureAdapter to resolve interactions with the API.</p>
+
+<p>The CSS we will be using in this app</p>
+
+<div class="highlight highlight-css"><pre>// more in Git source
+
+<span class="pl-e">.master</span> {
+  <span class="pl-mp"><span class="pl-s3">float</span></span>: <span class="pl-sc">left</span>;
+  <span class="pl-mp"><span class="pl-s3">width</span></span>: <span class="pl-c1">30<span class="pl-k">%</span></span>;
+  <span class="pl-mp"><span class="pl-s3">font-size</span></span>: <span class="pl-c1">20<span class="pl-k">pt</span></span>;
+}
+
+<span class="pl-e">.master</span> <span class="pl-ent">a</span> {
+  <span class="pl-mp"><span class="pl-s3">display</span></span>: <span class="pl-sc">block</span>;
+  <span class="pl-mp"><span class="pl-s3">text-decoration</span></span>: <span class="pl-sc">none</span>;
+}
+
+<span class="pl-e">.master</span> <span class="pl-ent">a</span><span class="pl-e">:hover</span> {
+  <span class="pl-mp"><span class="pl-s3">text-decoration</span></span>: <span class="pl-sc">underline</span>;
+}
+
+<span class="pl-e">.master</span> <span class="pl-ent">a</span><span class="pl-e">.active</span><span class="pl-e">::before</span> {
+  <span class="pl-mp"><span class="pl-s3">content</span></span>: <span class="pl-s1"><span class="pl-pds">"</span> » <span class="pl-pds">"</span></span>;
+}
+
+<span class="pl-e">.detail</span> {
+  <span class="pl-mp"><span class="pl-s3">float</span></span>: <span class="pl-sc">left</span>;
+  <span class="pl-mp"><span class="pl-s3">width</span></span>: <span class="pl-c1">70<span class="pl-k">%</span></span>;
+  <span class="pl-mp"><span class="pl-s3">font-size</span></span>: <span class="pl-c1">14<span class="pl-k">pt</span></span>;
+}</pre></div>
+
+<h3>
+<a id="meat-and-potatoes" class="anchor" href="#meat-and-potatoes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Meat and Potatoes</h3>
+
+<p>Our app will have one model: <strong>Users</strong>. Let's now define this model in our app.</p>
+
+<p>Create a file <code>/app/models/user.js</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">import</span> DS from <span class="pl-s1"><span class="pl-pds">"</span>ember-data<span class="pl-pds">"</span></span>;
+
+<span class="pl-c">// define the User model</span>
+<span class="pl-s">var</span> User <span class="pl-k">=</span> DS.Model.extend({
+  firstName<span class="pl-k">:</span>  DS.attr(<span class="pl-s1"><span class="pl-pds">'</span>string<span class="pl-pds">'</span></span>),
+  lastName<span class="pl-k">:</span>   DS.attr(<span class="pl-s1"><span class="pl-pds">'</span>string<span class="pl-pds">'</span></span>),
+  bio<span class="pl-k">:</span>        DS.attr(<span class="pl-s1"><span class="pl-pds">'</span>string<span class="pl-pds">'</span></span>)
+});
+
+<span class="pl-c">// create User fixtures</span>
+<span class="pl-c">// this is what the FixtureAdapter uses as the API source</span>
+User.reopenClass({
+  FIXTURES<span class="pl-k">:</span> [
+    {id<span class="pl-k">:</span> <span class="pl-c1">1</span>, firstName<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>Steve<span class="pl-pds">'</span></span>, lastName<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>Jobs<span class="pl-pds">'</span></span>, bio<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Jobs' Bio here<span class="pl-pds">"</span></span>},
+    {id<span class="pl-k">:</span> <span class="pl-c1">2</span>, firstName<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>Jony<span class="pl-pds">'</span></span>, lastName<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>Ive<span class="pl-pds">'</span></span>, bio<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Ive's Bio Here<span class="pl-pds">"</span></span>}
+  ]
+});
+
+<span class="pl-s">export</span> <span class="pl-k">default</span> User;</pre></div>
+
+<p>Our <strong>final</strong> page structure will look like this</p>
+
+<pre><code>-----------------------------------------------------
+|  Users  |           User Show Route               |
+|  Index  |                                         |
+|  Route  |                                         |
+|         |                                         |
+|         |                                         |
+|         |                                         |
+|         |                                         |
+-----------------------------------------------------
+</code></pre>
+
+<p>A typical <em>Master-Detail</em> page.</p>
+
+<p>The Index Route will list out all the Users and the User Show Route will show a more detailed view of a single user.</p>
+
+<p>We will first work on the Users Index Route</p>
+
+<h5>
+<a id="users-index-route" class="anchor" href="#users-index-route" aria-hidden="true"><span class="octicon octicon-link"></span></a>Users Index Route</h5>
+
+<p>In <code>/app/router.js</code>, add a new route</p>
+
+<div class="highlight highlight-javascript"><pre>...
+
+Router.map(<span class="pl-st">function</span>() {
+  <span class="pl-v">this</span>.route(<span class="pl-s1"><span class="pl-pds">'</span>users<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {});
+});
+
+...</pre></div>
+
+<p>You can read more about routing <a href="http://">here</a>, but the most important thing you must realize is that this creates a path <code>/users</code>. Ember CLI then expects a UsersTemplate to be created in order to resolve (a UsersController and a UsersRoute are optional -- it is implicitly created). </p>
+
+<p>So create the UsersTemplate <code>/app/templates/users.hbs</code></p>
+
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">h1</span>&gt;Users&lt;/<span class="pl-ent">h1</span>&gt;
+&lt;<span class="pl-ent">h5</span>&gt;View users in detail&lt;/<span class="pl-ent">h5</span>&gt;
+
+&lt;<span class="pl-ent">hr</span>&gt;
+{{outlet}}</pre></div>
+
+<p>Everything nested under the <code>/users</code> route will be rendered into the <code>outlet</code>.</p>
+
+<p>Now we will create the UsersIndexRoute, which will display the list of users.</p>
+
+<p>We will override the Route method <code>model</code> to make the AJAX call to grab users. Create a new directory <code>/app/routes/users</code> and a new file under it <code>/app/routes/users/index.js</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">import</span> Ember from <span class="pl-s1"><span class="pl-pds">'</span>ember<span class="pl-pds">'</span></span>;
+
+<span class="pl-s">export</span> <span class="pl-k">default</span> Ember.Route.extend({
+
+  <span class="pl-en">model</span>: <span class="pl-st">function</span>() {
+    <span class="pl-c">// use Ember Data to make an AJAX call to grab users</span>
+    <span class="pl-k">return</span> <span class="pl-v">this</span>.store.<span class="pl-s3">find</span>(<span class="pl-s1"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>);
+  },
+
+});</pre></div>
+
+<p>Now that we have the users, we can now display them in the template <code>/app/templates/users/index.hbs</code></p>
+
+<div class="highlight highlight-html"><pre>{{#each model}}
+  &lt;<span class="pl-ent">div</span>&gt;{{firstName}} {{lastName}}&lt;/<span class="pl-ent">div</span>&gt;
+{{/each}}</pre></div>
+
+<p>Open <a href="http://localhost:4200/users">http://localhost:4200/users</a> in your browser and you should see something like this
+<code>screenshot 2</code></p>
+
+<p>In preparation of multiple outlets, we will make a modification to how the UsersIndexRoute renders.</p>
+
+<p>Modify <code>/app/templates/users.hbs</code></p>
+
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">h1</span>&gt;Users&lt;/<span class="pl-ent">h1</span>&gt;
+&lt;<span class="pl-ent">h5</span>&gt;View users in detail&lt;/<span class="pl-ent">h5</span>&gt;
+
+&lt;<span class="pl-ent">hr</span>&gt;
+
+&lt;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s1"><span class="pl-pds">"</span>master<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s1"><span class="pl-pds">"</span>inner<span class="pl-pds">"</span></span>&gt;{{outlet 'master'}}&lt;/<span class="pl-ent">div</span>&gt;
+&lt;/<span class="pl-ent">div</span>&gt;
+
+&lt;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s1"><span class="pl-pds">"</span>detail<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">div</span> <span class="pl-e">class</span>=<span class="pl-s1"><span class="pl-pds">"</span>inner<span class="pl-pds">"</span></span>&gt;{{outlet 'detail'}}&lt;/<span class="pl-ent">div</span>&gt;
+&lt;/<span class="pl-ent">div</span>&gt;</pre></div>
+
+<p>As you can see we are adding the master-detail layout here. We are now going to name the existing outlet <code>master</code></p>
+
+<p>Now modify <code>/app/routes/users/index.js</code> to render the template into the new named route</p>
+
+<div class="highlight highlight-javascript"><pre>...
+
+  <span class="pl-en">renderTemplate</span>: <span class="pl-st">function</span>() {
+    <span class="pl-v">this</span>.render({
+      outlet<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>master<span class="pl-pds">'</span></span>,
+    });
+  },
+
+...</pre></div>
+
+<p>Not much to look at yet -- just a master list of users. Now we will add the UsersShowRoute and add links to the list that direct to the respective users.</p>
+
+<h5>
+<a id="users-show-route" class="anchor" href="#users-show-route" aria-hidden="true"><span class="octicon octicon-link"></span></a>Users Show Route</h5>
+
+<p>First we will update <code>/app/router.js</code></p>
+
+<div class="highlight highlight-javascript"><pre>...
+
+Router.map(<span class="pl-st">function</span>() {
+  <span class="pl-v">this</span>.route(<span class="pl-s1"><span class="pl-pds">'</span>users<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    <span class="pl-v">this</span>.route(<span class="pl-s1"><span class="pl-pds">'</span>index<span class="pl-pds">'</span></span>, { path<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>}, <span class="pl-st">function</span>() {
+      <span class="pl-v">this</span>.route(<span class="pl-s1"><span class="pl-pds">'</span>show<span class="pl-pds">'</span></span>, { path<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>:id<span class="pl-pds">'</span></span> });
+    });
+  });
+});
+
+...</pre></div>
+
+<p>This nests /users/:id under the index Route. This ensures that the master list will always show as we move between show routes.</p>
+
+<p>Next up is creating the UsersShowRoute <code>/app/routes/users/index/show.js</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">import</span> Ember from <span class="pl-s1"><span class="pl-pds">'</span>ember<span class="pl-pds">'</span></span>;
+
+<span class="pl-s">export</span> <span class="pl-k">default</span> Ember.Route.extend({
+
+  <span class="pl-en">renderTemplate</span>: <span class="pl-st">function</span>() {
+    <span class="pl-v">this</span>.render({
+      outlet<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>detail<span class="pl-pds">'</span></span>,
+    });
+  },
+
+  <span class="pl-en">model</span>: <span class="pl-st">function</span>(<span class="pl-vpf">params</span>) {
+    <span class="pl-c">// using `fetch` instead of the usual `find` method</span>
+    <span class="pl-c">// to always make a call to the API</span>
+    <span class="pl-c">// regardless of the current store</span>
+    <span class="pl-k">return</span> <span class="pl-v">this</span>.store.fetch(<span class="pl-s1"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>, params.<span class="pl-sc">id</span>);
+  },
+
+});</pre></div>
+
+<p>Then we create the template <code>/app/templates/users/index/show.hbs</code></p>
+
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">strong</span>&gt;{{firstName}} {{lastName}}&lt;/<span class="pl-ent">strong</span>&gt;
+&lt;<span class="pl-ent">hr</span>&gt;
+{{bio}}</pre></div>
+
+<p>Now create the links to the show pages in the master list. Replace contents of the file <code>/app/templates/users/index.hbs</code></p>
+
+<div class="highlight highlight-html"><pre>{{#each model}}
+  {{#link-to 'users.index.show' this.id}}{{firstName}} {{lastName}}{{/link-to}}
+{{/each}}</pre></div>
+
+<p>At this point we can seamlessly move between nested show routes. This is how it should look</p>
+
+<p><code>scrnshot 3</code></p>
+
+<p>Reload the page on a show route and the master list will be loaded along side the detail view. Increase the <code>FixtureAdapter</code> latency to see the transitions clearly.</p>
+
+<h3>
+<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion</h3>
+
+<p>And that's it! We have completed the tutorial. As you can see in this very simplified example, it takes very little lines of code to achieve a Master-Detail implementation when one follows Ember's conventions.</p>
+
+<h3>
+<a id="bonus" class="anchor" href="#bonus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bonus</h3>
+
+<h5>
+<a id="loading-substates" class="anchor" href="#loading-substates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Loading substates</h5>
+
+<p>Learn more about Loading Substates here  <a href="http://emberjs.com/guides/routing/loading-and-error-substates/">here</a> </p>
+
+<p>We will utilize Loading Substates to better visualize the transitions between routes. Right now, since we have set a latency to our API requests, we can see a slight delay in the rendering. It would be better as a user to see a loading substate in place of any other content. Ember gives us a pretty solid convention for this. We simply need to define the routes for both the index route and the show route to tell Ember to use our named outlets.</p>
+
+<p>First create the loading template <code>/app/templates/loading.hbs</code></p>
+
+<div class="highlight highlight-html"><pre>Loading...</pre></div>
+
+<p>Create <code>/app/routes/users/loading.js</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">import</span> Ember from <span class="pl-s1"><span class="pl-pds">'</span>ember<span class="pl-pds">'</span></span>;
+
+<span class="pl-s">export</span> <span class="pl-k">default</span> Ember.Route.extend({
+
+  <span class="pl-en">renderTemplate</span>: <span class="pl-st">function</span>() {
+    <span class="pl-v">this</span>.render(<span class="pl-s1"><span class="pl-pds">'</span>loading<span class="pl-pds">'</span></span>, { <span class="pl-c">// the loading template</span>
+      outlet<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>master<span class="pl-pds">'</span></span>,      <span class="pl-c">// place into the 'master' outlet</span>
+    });
+  }
+
+});</pre></div>
+
+<p>Create <code>/app/routes/users/index/loading.js</code></p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">import</span> Ember from <span class="pl-s1"><span class="pl-pds">'</span>ember<span class="pl-pds">'</span></span>;
+
+<span class="pl-s">export</span> <span class="pl-k">default</span> Ember.Route.extend({
+
+  <span class="pl-en">renderTemplate</span>: <span class="pl-st">function</span>() {
+    <span class="pl-v">this</span>.render(<span class="pl-s1"><span class="pl-pds">'</span>loading<span class="pl-pds">'</span></span>, { <span class="pl-c">// the loading template</span>
+      outlet<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>detail<span class="pl-pds">'</span></span>,      <span class="pl-c">// place into the 'detail' outlet</span>
+    });
+  }
+
+});</pre></div>
+
+<h1>
+<a id="notes-and-acknowledgements" class="anchor" href="#notes-and-acknowledgements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Notes and Acknowledgements</h1>
+
+<ul>
+<li>This is very similar to how Ember101 implements the master-detail page <a href="http://ember101.com/videos/007-nested-routes">here</a>. However, I found that this didn't quite get it to where I wanted it to be. I wanted two outlets (a master and a detail) that contain separate loading substates. In this way, we do not have to wait for the index (master) list to resolve before rendering anything on the page.</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/dorilla">dorilla</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>

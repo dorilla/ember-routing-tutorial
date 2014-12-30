@@ -1,8 +1,26 @@
 html, body {
   margin: 20px;
-  font-family: Avenir;
+  font-family: 'Avenir', sans-serif;
 }
 
-div {
+strong {
+  font-weight: 600;
+}
+
+.master {
+  float: left;
+  width: 30%;
+
   font-size: 20pt;
+}
+
+.master a {
+  display: block;
+}
+
+.detail {
+  float: left;
+  width: 70%;
+
+  font-size: 14pt;
 }
